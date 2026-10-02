@@ -171,7 +171,8 @@ export function createApp({ env = process.env, dbPath = env.DB_PATH || path.join
 
   const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 2 * 1024 * 1024, files: 1, fields: 0, parts: 1 },
+    // Busboy rejects the first part when `parts: 1`, so files/fields bound the request instead.
+    limits: { fileSize: 2 * 1024 * 1024, files: 1, fields: 0 },
     fileFilter(req, file, callback) {
       if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.mimetype)) return callback(new RequestError('Formats autorisés : JPEG, PNG, GIF et WebP'))
       callback(null, true)
