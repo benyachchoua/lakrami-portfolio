@@ -1,20 +1,12 @@
 import { useState } from 'react'
-import { sanitizeHtml } from '../../utils/sanitizeHtml'
+import { asArray } from '../../utils/sectionDisplay'
+import SectionHeading from './SectionHeading'
+import SectionBlocks from './SectionBlocks'
 import '../../styles/teaching.css'
 
 const COURSE_LIMIT = 6
-const INSTITUTIONS = [
-  ['Faculté des Sciences', 'Faculté des Sciences d\'El Jadida'],
-  ['ENSA', 'ENSA d\'El Jadida'],
-  ['SUPEMIR', 'SUPEMIR'],
-  ['ESEF', 'ESEF d\'El Jadida'],
-  ['FLSH', 'FLSH d\'El Jadida'],
-  ['EST', 'EST de Sidi Bennour']
-]
-const DIGITAL_ITEMS = ['Plateformes d\'apprentissage en ligne', 'Évaluation automatisée', 'Réalité virtuelle en éducation', 'Intelligence artificielle pédagogique']
-const CONTINUING_ITEMS = ['Ateliers sur l\'IA en éducation', 'Formations en cybersécurité', 'Séminaires sur les réseaux', 'Conférences technologiques']
+const FALLBACK_INSTITUTION = 'Autres établissements'
 
-const matchInstitution = (text) => (INSTITUTIONS.find(([key]) => text.includes(key)) || [])[1]
 const hasValue = (value) => Array.isArray(value) ? value.length > 0 : Boolean(value && String(value).trim())
 const courseMeta = (course) => [course.level, course.semester && (/^semestre/i.test(course.semester) ? course.semester : `Semestre ${course.semester}`), course.hours].filter(Boolean).join(' · ')
 const courseDetails = (course) => [
@@ -26,45 +18,29 @@ const courseDetails = (course) => [
   ['Méthodes d’évaluation', course.evaluation]
 ].filter(([, value]) => hasValue(value))
 
-const TeachingSection = ({ sections = [] }) => {
+const TeachingSection = ({ section, number, anchor }) => {
   const [expanded, setExpanded] = useState({})
-  const teachingSection = sections.find(section => section.id === 'enseignement')
 
-  if (!teachingSection || !teachingSection.visible) return null
+  const coursesData = asArray(section.content).filter(course => course && typeof course === 'object')
 
-  const coursesData = Array.isArray(teachingSection.content) ? teachingSection.content : []
-
-  // Regrouper les cours par établissement (nom personnalisé conservé tel quel)
+  // Regrouper les cours par établissement (nom conservé tel quel)
   const coursesByInstitution = coursesData.reduce((acc, course) => {
-    const establishment = course.establishment
-    const name = establishment
-      ? matchInstitution(establishment) || establishment
-      : matchInstitution(course.description || '') || 'Autres établissements'
+    const name = String(course.establishment ?? '').trim() || FALLBACK_INSTITUTION
     if (!acc[name]) acc[name] = { name, courses: [] }
     acc[name].courses.push(course)
     return acc
   }, {})
   const institutionsList = Object.values(coursesByInstitution)
 
-  const hasRichIntro = typeof teachingSection.content === 'string' && teachingSection.content.trim()
-
   return (
-    <section id="teaching" className="section-padding academic-section teaching-section" aria-labelledby="teaching-heading">
+    <section id={anchor} className="section-padding academic-section teaching-section" aria-labelledby={`${anchor}-heading`}>
       <div className="container-max">
-        <div className="section-heading heading-split">
-          <div>
-            <p className="eyebrow">06 / Enseignement</p>
-            <h2 id="teaching-heading">Transmettre le savoir,<br /><em>former et innover.</em></h2>
-          </div>
-          {hasRichIntro
-            ? <div className="teaching-intro" dangerouslySetInnerHTML={{ __html: sanitizeHtml(teachingSection.content) }} />
-            : <p className="teaching-intro">Mon engagement dans la formation des futurs ingénieurs et chercheurs en technologies de l’information et de la communication.</p>}
-        </div>
+        <SectionHeading section={section} number={number} anchor={anchor} introClassName="teaching-intro" />
 
         {institutionsList.length > 0 ? (
           <ul className="institution-list">
             {institutionsList.map((institution, index) => {
-              const listId = `teaching-courses-${index}`
+              const listId = `${anchor}-courses-${index}`
               const isLong = institution.courses.length > COURSE_LIMIT
               const isOpen = Boolean(expanded[institution.name])
               const visibleCourses = isLong && !isOpen ? institution.courses.slice(0, COURSE_LIMIT) : institution.courses
@@ -114,23 +90,11 @@ const TeachingSection = ({ sections = [] }) => {
           </ul>
         ) : (
           <div className="empty-state teaching-empty">
-            <h3>Aucun cours disponible</h3>
-            <p>Les cours seront affichés ici une fois ajoutés depuis l’administration.</p>
+            <p>Aucun contenu à afficher pour le moment.</p>
           </div>
         )}
 
-        <div className="teaching-pedagogy">
-          <div>
-            <h3>Pédagogie numérique</h3>
-            <p>Développement et mise en œuvre de solutions d’enseignement à distance, intégration des nouvelles technologies dans les pratiques pédagogiques.</p>
-            <ul>{DIGITAL_ITEMS.map(item => <li key={item}>{item}</li>)}</ul>
-          </div>
-          <div>
-            <h3>Formation continue</h3>
-            <p>Organisation de formations pour les professionnels et les enseignants sur les dernières avancées technologiques.</p>
-            <ul>{CONTINUING_ITEMS.map(item => <li key={item}>{item}</li>)}</ul>
-          </div>
-        </div>
+        <SectionBlocks section={section} />
       </div>
     </section>
   )

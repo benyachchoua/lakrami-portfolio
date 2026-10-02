@@ -10,19 +10,19 @@ const AdminHeader = () => {
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
-      <div className="px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-secondary-900">
+      <div className="px-4 py-3 md:px-6 md:py-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold text-secondary-900">
               Administration Portfolio
             </h1>
-            <p className="text-secondary-600">
+            <p className="hidden sm:block text-secondary-600">
               Gestion du contenu et des sections
             </p>
           </div>
           
           <div className="flex items-center space-x-4">
-            <div className="flex items-center">
+            <div className="hidden md:flex items-center">
               <UserCircleIcon className="h-8 w-8 text-secondary-400 mr-2" />
               <div>
                 <div className="text-sm font-medium text-secondary-900">
@@ -39,7 +39,7 @@ const AdminHeader = () => {
             
             <button
               onClick={signOut}
-              className="flex items-center text-secondary-600 hover:text-red-600 transition-colors"
+              className="flex items-center shrink-0 min-h-[44px] text-secondary-600 hover:text-red-600 transition-colors"
             >
               <ArrowRightOnRectangleIcon className="h-5 w-5 mr-1" />
               Déconnexion

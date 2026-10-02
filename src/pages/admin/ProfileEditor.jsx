@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { usePortfolio } from '../../contexts/PortfolioContext'
 import { apiRequest, jsonRequest } from '../../utils/api'
@@ -213,6 +214,33 @@ const ProfileEditor = () => {
                 </div>
 
                 <div>
+                  <label htmlFor="profile-titre" className="block text-sm font-semibold text-gray-700 mb-3">
+                    Titre (affiché avant le prénom)
+                  </label>
+                  <input
+                    id="profile-titre"
+                    {...register('titre')}
+                    type="text"
+                    placeholder="Dr."
+                    className="w-full px-4 py-3 bg-white/70 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="profile-tagline" className="block text-sm font-semibold text-gray-700 mb-3">
+                    <SparklesIcon className="h-4 w-4 inline mr-2" aria-hidden="true" />
+                    Accroche (bandeau d’accueil)
+                  </label>
+                  <input
+                    id="profile-tagline"
+                    {...register('tagline')}
+                    type="text"
+                    placeholder="Recherche · Enseignement · Transmission"
+                    className="w-full px-4 py-3 bg-white/70 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm"
+                  />
+                </div>
+
+                <div>
                   <label htmlFor="profile-email" className="block text-sm font-semibold text-gray-700 mb-3">
                     <EnvelopeIcon className="h-4 w-4 inline mr-2" aria-hidden="true" />
                     Email de contact
@@ -242,22 +270,14 @@ const ProfileEditor = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    <GlobeAltIcon className="h-4 w-4 inline mr-2" />
-                    Langues parlées
-                  </label>
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {['Arabe', 'Français', 'Anglais', 'Espagnol'].map((lang, index) => (
-                        <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                          {lang}
-                        </span>
-                      ))}
-                    </div>
-                    <p className="text-xs text-blue-600">
-                      Pour modifier les langues, contactez l'administrateur système.
-                    </p>
-                  </div>
+                  <p className="block text-sm font-semibold text-gray-700 mb-3">
+                    <GlobeAltIcon className="h-4 w-4 inline mr-2" aria-hidden="true" />
+                    Langues et formations
+                  </p>
+                  <p className="p-4 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700">
+                    Les langues parlées et les formations se modifient dans la section « À propos ».{' '}
+                    <Link to="/admin/sections" className="font-semibold underline underline-offset-4" style={{ color: 'var(--teal)' }}>Ouvrir les sections</Link>
+                  </p>
                 </div>
               </div>
 

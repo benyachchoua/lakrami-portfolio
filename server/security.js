@@ -2,9 +2,10 @@ import { createHash, randomBytes } from 'node:crypto'
 
 export const SESSION_COOKIE = 'portfolio_session'
 const SESSION_TTL = 8 * 60 * 60 * 1000
-const PROFILE_FIELDS = ['nom', 'prenom', 'nationalite', 'gsm', 'grade', 'fonction', 'email', 'affiliation', 'laboratoire', 'equipe', 'mission', 'photo', 'linkedin', 'researchgate', 'youtube']
+const PROFILE_FIELDS = ['nom', 'prenom', 'nationalite', 'gsm', 'grade', 'fonction', 'email', 'affiliation', 'laboratoire', 'equipe', 'mission', 'photo', 'linkedin', 'researchgate', 'youtube', 'tagline', 'titre']
 const METADATA_FIELDS = ['id', 'user_id', 'created_at', 'updated_at']
-const SECTION_TYPES = new Set(['text', 'list', 'cards', 'research', 'skills', 'publications', 'teaching', 'projects', 'responsibilities', 'theses'])
+const SECTION_TYPES = new Set(['text', 'list', 'cards', 'research', 'skills', 'publications', 'teaching', 'projects', 'responsibilities', 'theses', 'about', 'contact'])
+const META_TEXT_LIMITS = { eyebrow: 120, heading: 300, accent: 300, intro: 3_000 }
 
 export class RequestError extends Error {
   constructor(message, status = 400) {
@@ -76,9 +77,28 @@ function validateContent(value, depth = 0) {
   }
 }
 
+// Section headings (eyebrow, heading, accent, intro) and optional complementary text blocks.
+function validateMeta(meta) {
+  if (meta === null) return null
+  allowFields(meta, [...Object.keys(META_TEXT_LIMITS), 'blocks'])
+  for (const [field, maximum] of Object.entries(META_TEXT_LIMITS)) {
+    if (field in meta && (typeof meta[field] !== 'string' || meta[field].length > maximum)) throw new RequestError(`En-tête invalide : ${field}`)
+  }
+  if ('blocks' in meta) {
+    if (!Array.isArray(meta.blocks) || meta.blocks.length > 20) throw new RequestError('Blocs complémentaires invalides')
+    for (const block of meta.blocks) {
+      allowFields(block, ['title', 'text', 'items'])
+      const items = block.items ?? []
+      if (typeof (block.title ?? '') !== 'string' || (block.title ?? '').length > 300 || typeof (block.text ?? '') !== 'string' || (block.text ?? '').length > 5_000
+        || !Array.isArray(items) || items.length > 50 || items.some(item => typeof item !== 'string' || item.length > 500)) throw new RequestError('Bloc complémentaire invalide')
+    }
+  }
+  return meta
+}
+
 export function validateSection(input, existing = null) {
-  allowFields(input, ['title', 'type', 'content', 'visible', 'order', 'section_order', ...METADATA_FIELDS])
-  if (!['title', 'type', 'content', 'visible', 'order', 'section_order'].some(field => field in input)) throw new RequestError('Aucune modification fournie')
+  allowFields(input, ['title', 'type', 'content', 'visible', 'order', 'section_order', 'meta', ...METADATA_FIELDS])
+  if (!['title', 'type', 'content', 'visible', 'order', 'section_order', 'meta'].some(field => field in input)) throw new RequestError('Aucune modification fournie')
   const section = { title: '', type: 'text', content: '', visible: true, order: 0, ...existing, ...input }
   section.order = input.order ?? input.section_order ?? existing?.order ?? 0
   if (typeof section.title !== 'string' || !section.title.trim() || section.title.length > 200) throw new RequestError('Titre requis (200 caractères maximum)')
@@ -86,6 +106,7 @@ export function validateSection(input, existing = null) {
   if (![true, false, 0, 1].includes(section.visible)) throw new RequestError('Visibilité invalide')
   if (!Number.isSafeInteger(section.order) || section.order < 0 || section.order > 100_000) throw new RequestError('Ordre de section invalide')
   validateContent(section.content)
+  section.meta = validateMeta(section.meta ?? null)
   if (JSON.stringify(section.content).length > 1_000_000) throw new RequestError('Contenu trop volumineux', 413)
   return section
 }

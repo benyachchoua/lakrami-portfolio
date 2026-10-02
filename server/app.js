@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto'
 import multer from 'multer'
 import fs from 'node:fs'
 import { initDatabase } from './database.js'
+import { migrateDatabase } from './migrations.js'
 import {
   RequestError, allowFields, createRateLimiter, createSessions, detectImage,
   requireSession, requireOwner, validEmail, validPassword, validSectionId,
@@ -23,6 +24,7 @@ export function createApp({ env = process.env, dbPath = env.DB_PATH || path.join
   const production = env.NODE_ENV === 'production'
   db.pragma('foreign_keys = ON')
   initDatabase(db, env)
+  migrateDatabase(db)
   const sessions = createSessions(db, { production })
   const dummyPasswordHash = bcrypt.hashSync(randomUUID(), 12)
   const origins = new Set((env.CORS_ORIGINS || (production ? '' : 'http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001')).split(',').map(origin => origin.trim()).filter(Boolean))
@@ -89,7 +91,9 @@ export function createApp({ env = process.env, dbPath = env.DB_PATH || path.join
   function formatSection(section) {
     let content = null
     try { content = section.content ? JSON.parse(section.content) : null } catch { /* Retain legacy invalid JSON without exposing internal errors. */ }
-    return { ...section, content, visible: Boolean(section.visible), order: section.section_order }
+    let meta = null
+    try { meta = section.meta ? JSON.parse(section.meta) : null } catch { /* Invalid legacy headings fall back to the section title. */ }
+    return { ...section, content, meta, visible: Boolean(section.visible), order: section.section_order }
   }
   function readSections(userId, owner = false) {
     return db.prepare(`SELECT * FROM sections WHERE user_id = ? ${owner ? '' : 'AND visible = 1'} ORDER BY section_order, id`).all(userId).map(formatSection)
@@ -135,17 +139,17 @@ export function createApp({ env = process.env, dbPath = env.DB_PATH || path.join
     const { sectionId } = req.params
     const existing = db.prepare('SELECT * FROM sections WHERE id = ? AND user_id = ?').get(sectionId, req.user.id)
     const section = validateSection(req.body, existing ? formatSection(existing) : null)
-    if (existing) db.prepare('UPDATE sections SET title = ?, type = ?, content = ?, visible = ?, section_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?').run(section.title, section.type, JSON.stringify(section.content), section.visible ? 1 : 0, section.order, sectionId, req.user.id)
+    if (existing) db.prepare('UPDATE sections SET title = ?, type = ?, content = ?, meta = ?, visible = ?, section_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?').run(section.title, section.type, JSON.stringify(section.content), section.meta && JSON.stringify(section.meta), section.visible ? 1 : 0, section.order, sectionId, req.user.id)
     else {
       if (db.prepare('SELECT id FROM sections WHERE id = ?').get(sectionId)) throw new RequestError('Identifiant de section indisponible', 409)
-      db.prepare('INSERT INTO sections (id, user_id, title, type, content, visible, section_order) VALUES (?, ?, ?, ?, ?, ?, ?)').run(sectionId, req.user.id, section.title, section.type, JSON.stringify(section.content), section.visible ? 1 : 0, section.order)
+      db.prepare('INSERT INTO sections (id, user_id, title, type, content, meta, visible, section_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(sectionId, req.user.id, section.title, section.type, JSON.stringify(section.content), section.meta && JSON.stringify(section.meta), section.visible ? 1 : 0, section.order)
     }
     res.json({ success: true, changes: 1 })
   })
   app.post('/api/sections/:userId', requireSession, requireOwner, (req, res) => {
     const section = validateSection(req.body)
     const id = `section-${randomUUID()}`
-    db.prepare('INSERT INTO sections (id, user_id, title, type, content, visible, section_order) VALUES (?, ?, ?, ?, ?, ?, ?)').run(id, req.user.id, section.title, section.type, JSON.stringify(section.content), section.visible ? 1 : 0, section.order)
+    db.prepare('INSERT INTO sections (id, user_id, title, type, content, meta, visible, section_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(id, req.user.id, section.title, section.type, JSON.stringify(section.content), section.meta && JSON.stringify(section.meta), section.visible ? 1 : 0, section.order)
     res.status(201).json({ success: true, id })
   })
   app.delete('/api/sections/:userId/:sectionId', requireSession, requireOwner, (req, res) => {

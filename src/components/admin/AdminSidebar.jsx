@@ -18,16 +18,17 @@ const AdminSidebar = () => {
   ]
 
   return (
-    <aside className="w-64 bg-white shadow-sm border-r border-gray-200 min-h-screen">
-      <nav className="p-4">
-        <div className="space-y-2">
+    <aside className="w-full md:w-64 shrink-0 bg-white shadow-sm border-b md:border-b-0 md:border-r border-gray-200 md:min-h-screen">
+      {/* Horizontal scrolling tab bar on phones, vertical sidebar from md up. */}
+      <nav className="flex md:block gap-1 overflow-x-auto p-2 md:p-4">
+        <div className="flex md:block gap-1 md:space-y-2">
           {navigation.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
               end={item.exact}
               className={({ isActive }) =>
-                `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                `flex items-center shrink-0 whitespace-nowrap min-h-[44px] px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                   isActive
                     ? 'bg-primary-100 text-primary-700 border-r-2 border-primary-600'
                     : 'text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900'
@@ -40,12 +41,12 @@ const AdminSidebar = () => {
           ))}
         </div>
         
-        <div className="mt-8 pt-8 border-t border-gray-200">
+        <div className="md:mt-8 md:pt-8 md:border-t border-gray-200">
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center px-4 py-3 text-sm font-medium text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900 rounded-lg transition-colors"
+            className="flex items-center shrink-0 whitespace-nowrap min-h-[44px] px-4 py-3 text-sm font-medium text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900 rounded-lg transition-colors"
           >
             <HomeIcon className="h-5 w-5 mr-3" />
             Voir le site

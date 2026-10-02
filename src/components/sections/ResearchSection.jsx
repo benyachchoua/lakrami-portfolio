@@ -1,18 +1,27 @@
-﻿import { sanitizeHtml } from '../../utils/sanitizeHtml'
+import { sanitizeHtml } from '../../utils/sanitizeHtml'
+import { asArray } from '../../utils/sectionDisplay'
+import SectionHeading from './SectionHeading'
+import SectionBlocks from './SectionBlocks'
 
-const ResearchSection = ({ sections = [] }) => {
-  const section = sections.find(item => item.id === 'axes-recherche')
-  if (!section?.visible) return null
-  const content = Array.isArray(section.content) ? section.content : []
+const ResearchSection = ({ section, number, anchor }) => {
+  const isHtml = typeof section.content === 'string'
+  const items = asArray(section.content)
+    .map(item => (typeof item === 'string' ? { title: item } : item))
+    .filter(item => item && typeof item === 'object' && (item.title || item.name || item.description))
+
   return (
-    <section id="research" className="section-padding research-section" aria-labelledby="research-heading">
+    <section id={anchor} className="section-padding research-section" aria-labelledby={`${anchor}-heading`}>
       <div className="container-max">
-        <div className="section-heading heading-split"><div><p className="eyebrow">02 / Recherche</p><h2 id="research-heading">Explorer. Comprendre.<br /><em>Faire progresser.</em></h2></div><p>Réseaux, sécurité et technologies éducatives : des domaines complémentaires au service de la recherche et de l’innovation.</p></div>
-        {typeof section.content === 'string' ? <div className="rich-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(section.content) }} /> : <ol className="research-list">{content.map((item, index) => <li key={index}><span className="research-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><h3>{typeof item === 'string' ? item : item.title || item.name}</h3>{typeof item === 'object' && item.description && <p>{item.description}</p>}</li>)}</ol>}
+        <SectionHeading section={section} number={number} anchor={anchor} />
+        {isHtml
+          ? (section.content.trim() ? <div className="rich-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(section.content) }} /> : <div className="empty-state"><p>Aucun contenu à afficher pour le moment.</p></div>)
+          : items.length === 0
+            ? <div className="empty-state"><p>Aucun contenu à afficher pour le moment.</p></div>
+            : <ol className="research-list">{items.map((item, index) => <li key={index}><span className="research-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>{(item.title || item.name) && <h3>{item.title || item.name}</h3>}{item.description && <p>{item.description}</p>}</li>)}</ol>}
+        <SectionBlocks section={section} />
       </div>
     </section>
   )
 }
 
 export default ResearchSection
-

@@ -1,13 +1,9 @@
-﻿import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { usePortfolio } from '../contexts/PortfolioContext'
-
-const links = [
-  ['about', 'À propos'], ['research', 'Recherche', 'axes-recherche'],
-  ['publications', 'Publications', 'publications'], ['teaching', 'Enseignement', 'enseignement'],
-  ['theses', 'Encadrement', 'theses-encadrees'], ['contact', 'Contact'],
-]
+import { buildSectionEntries } from '../utils/sectionDisplay'
+import '../styles/header-nav.css'
 
 const Header = () => {
   const { portfolioData } = usePortfolio()
@@ -15,11 +11,16 @@ const Header = () => {
   const [activeSection, setActiveSection] = useState('home')
   const menuButton = useRef(null)
   const profile = portfolioData?.profile || {}
-  const navigation = links.filter(([, , sectionId]) => !sectionId || portfolioData?.sections?.some(section => section.id === sectionId && section.visible))
+  const sections = portfolioData?.sections
+  // Liens de navigation : une entrée par section visible (libellé = titre, ancre selon le contrat)
+  const navigation = useMemo(() => buildSectionEntries(sections).map(({ section, anchor }) => ({ anchor, label: section.title })).filter(item => item.label), [sections])
+  const anchorKey = navigation.map(item => item.anchor).join('|')
+  const initials = `${profile.prenom?.[0] || ''}${profile.nom?.[0] || ''}`
 
   useEffect(() => {
+    const ids = ['home', ...(anchorKey ? anchorKey.split('|') : [])]
     const handleScroll = () => {
-      const current = ['home', ...links.map(([id]) => id)].find(id => {
+      const current = ids.find(id => {
         const element = document.getElementById(id)
         if (!element) return false
         const rect = element.getBoundingClientRect()
@@ -30,7 +31,7 @@ const Header = () => {
     window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [anchorKey])
 
   useEffect(() => {
     if (!isMenuOpen) return
@@ -54,22 +55,21 @@ const Header = () => {
     <header className="site-header">
       <nav className="container-max header-inner" aria-label="Navigation principale">
         <Link to="/#home" className="site-brand" onClick={() => setIsMenuOpen(false)}>
-          <span className="brand-monogram" aria-hidden="true">{profile.prenom?.[0] || 'F'}{profile.nom?.[0] || 'L'}</span>
-          <span><strong>{profile.prenom} {profile.nom}</strong><span className="brand-subtitle">{profile.fonction || 'Portfolio académique'}</span></span>
+          {initials && <span className="brand-monogram" aria-hidden="true">{initials}</span>}
+          <span><strong>{[profile.prenom, profile.nom].filter(Boolean).join(' ')}</strong>{profile.fonction && <span className="brand-subtitle">{profile.fonction}</span>}</span>
         </Link>
         <div className="desktop-navigation">
-          {navigation.map(([id, label]) => <a key={id} href={'/#' + id} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}
+          {navigation.map(({ anchor, label }) => <a key={anchor} href={'/#' + anchor} aria-current={activeSection === anchor ? 'location' : undefined}>{label}</a>)}
         </div>
         <button ref={menuButton} type="button" className="menu-toggle" aria-expanded={isMenuOpen} aria-controls={isMenuOpen ? 'mobile-navigation' : undefined} aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'} onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <XMarkIcon aria-hidden="true" /> : <Bars3Icon aria-hidden="true" />}
         </button>
       </nav>
       {isMenuOpen && <nav id="mobile-navigation" className="mobile-navigation" aria-label="Navigation mobile">
-        {navigation.map(([id, label]) => <a key={id} href={'/#' + id} onClick={() => setIsMenuOpen(false)} aria-current={activeSection === id ? 'location' : undefined}>{label}</a>)}
+        {navigation.map(({ anchor, label }) => <a key={anchor} href={'/#' + anchor} onClick={() => setIsMenuOpen(false)} aria-current={activeSection === anchor ? 'location' : undefined}>{label}</a>)}
       </nav>}
     </header>
   )
 }
 
 export default Header
-

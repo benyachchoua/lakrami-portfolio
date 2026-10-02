@@ -24,13 +24,6 @@
 
 .teaching-section .teaching-empty { margin: 0; }
 
-.teaching-pedagogy { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 80px; row-gap: 40px; margin-top: 72px; padding-top: 40px; border-top: 1px solid var(--ink); }
-.teaching-pedagogy h3 { font-size: 18px; font-weight: 400; margin: 0 0 14px; }
-.teaching-pedagogy > div > p { max-width: 460px; color: var(--muted); font-size: 13px; line-height: 1.85; margin: 0 0 20px; }
-.teaching-pedagogy ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-.teaching-pedagogy li { padding: 12px 0 12px 18px; border-bottom: 1px solid var(--line); font-size: 13px; color: #42555e; position: relative; line-height: 1.6; }
-.teaching-pedagogy li::before { content: ''; position: absolute; left: 0; top: 1.15em; width: 8px; height: 1px; background: var(--teal); }
-
 @media (max-width: 767px) {
   .teaching-section .teaching-intro { max-width: none; padding-bottom: 0; font-size: 13px; }
   .teaching-section .institution-list { gap: 36px; }
@@ -42,5 +35,4 @@
   .teaching-section .course-row > span { margin-left: 0; }
   .teaching-section .disclosure-body { padding-left: 0; }
   .teaching-section .course-more .text-button { width: 100%; justify-content: center; border: 1px solid var(--line); border-radius: 4px; text-decoration: none; }
-  .teaching-pedagogy { grid-template-columns: 1fr; row-gap: 36px; margin-top: 48px; padding-top: 30px; }
 }
