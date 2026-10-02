@@ -9,7 +9,8 @@ import {
   EyeSlashIcon,
   PencilIcon,
   TrashIcon,
-  SparklesIcon
+  ArrowUpIcon,
+  ArrowDownIcon
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -23,7 +24,7 @@ const ContentSummary = ({ section }) => {
   if (type === 'contact') return <p>Coordonnées issues du profil (e-mail, téléphone, affiliation).</p>
   if (type === 'text') {
     const text = typeof content === 'string' ? stripTags(content) : ''
-    return text ? <p>{text.length > 160 ? text.slice(0, 159) + '…' : text}</p> : <p className="italic text-secondary-500">Aucun contenu texte.</p>
+    return text ? <p>{text.length > 160 ? text.slice(0, 159) + '…' : text}</p> : <p className="admin-empty-note">Aucun contenu texte.</p>
   }
   if (type === 'about') {
     const about = normalizeContent('about', content)
@@ -35,10 +36,10 @@ const ContentSummary = ({ section }) => {
   }
   if (type === 'list') {
     const items = Array.isArray(content) ? content : []
-    return items.length ? <p>{plural(items.length, 'élément', 'éléments')} : {items.slice(0, 3).map(String).join(' · ')}{items.length > 3 ? ' …' : ''}</p> : <p className="italic text-secondary-500">Liste vide.</p>
+    return items.length ? <p>{plural(items.length, 'élément', 'éléments')} : {items.slice(0, 3).map(String).join(' · ')}{items.length > 3 ? ' …' : ''}</p> : <p className="admin-empty-note">Liste vide.</p>
   }
   const items = normalizeContent(type, content)
-  if (!Array.isArray(items) || items.length === 0) return <p className="italic text-secondary-500">Aucun élément pour l’instant.</p>
+  if (!Array.isArray(items) || items.length === 0) return <p className="admin-empty-note">Aucun élément pour l’instant.</p>
   const titles = items.slice(0, 3).map((item) => itemTitle(type, item))
   return <p>{plural(items.length, 'élément', 'éléments')} : {titles.join(' · ')}{items.length > 3 ? ' …' : ''}</p>
 }
@@ -156,98 +157,45 @@ const SectionsEditor = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <>
+      <header className="admin-page-header">
         <div>
-          <h2 className="text-3xl font-bold text-secondary-900 flex items-center">
-            <SparklesIcon className="h-8 w-8 mr-3 text-primary-600" />
-            Sections du portfolio
-          </h2>
-          <p className="text-secondary-600 mt-2">
-            Modifiez les contenus, leur visibilité et leur ordre sur le site public.
-          </p>
+          <p className="eyebrow">Contenus</p>
+          <h1>Sections du <em>portfolio.</em></h1>
+          <p>Modifiez les contenus, leur visibilité et leur ordre sur le site public. L’ordre ci-dessous est celui du site.</p>
         </div>
-        <button
-          onClick={handleAddSection}
-          className="btn-primary flex items-center"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Ajouter une section
-        </button>
-      </div>
+        <div className="admin-actions">
+          <button type="button" onClick={handleAddSection} className="btn-primary"><PlusIcon aria-hidden="true" />Ajouter une section</button>
+        </div>
+      </header>
 
-      <div className="space-y-4">
+      <ol className="admin-sections">
         {sortedSections.map((section, index) => (
-          <div key={section.id} className="card p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center space-x-4">
-                <div className="flex flex-col gap-1">
-                  <button type="button" aria-label={`Monter ${section.title}`} onClick={() => moveSection(index, -1)} disabled={loading || index === 0} className="min-h-[44px] min-w-[44px] px-2 text-secondary-600 disabled:opacity-30">↑</button>
-                  <button type="button" aria-label={`Descendre ${section.title}`} onClick={() => moveSection(index, 1)} disabled={loading || index === sortedSections.length - 1} className="min-h-[44px] min-w-[44px] px-2 text-secondary-600 disabled:opacity-30">↓</button>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold text-secondary-900">
-                    {section.title}
-                  </h3>
-                  <div className="flex items-center space-x-4 mt-1">
-                    <span className="text-sm text-secondary-600">
-                      Type : {typeLabel(section.type)}
-                    </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      section.visible
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {section.visible ? 'Visible' : 'Masqué'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-1">
-                <button
-                  onClick={() => handleToggleVisibility(section.id, section.visible)}
-                  disabled={loading}
-                  className="min-h-[44px] min-w-[44px] p-2 text-secondary-600 hover:text-secondary-900 transition-colors"
-                  title={section.visible ? 'Masquer' : 'Afficher'}
-                  aria-label={(section.visible ? 'Masquer ' : 'Afficher ') + section.title}
-                >
-                  {section.visible ? (
-                    <EyeIcon className="h-5 w-5 mx-auto" />
-                  ) : (
-                    <EyeSlashIcon className="h-5 w-5 mx-auto" />
-                  )}
-                </button>
-
-                <button
-                  onClick={() => handleEditSection(section)}
-                  className="min-h-[44px] min-w-[44px] p-2 text-secondary-600 hover:text-primary-600 transition-colors"
-                  title="Modifier"
-                  aria-label={'Modifier ' + section.title}
-                >
-                  <PencilIcon className="h-5 w-5 mx-auto" />
-                </button>
-
-                <button
-                  onClick={() => handleDeleteSection(section)}
-                  disabled={loading}
-                  className="min-h-[44px] min-w-[44px] p-2 text-secondary-600 hover:text-red-600 transition-colors"
-                  title="Supprimer"
-                  aria-label={'Supprimer ' + section.title}
-                >
-                  <TrashIcon className="h-5 w-5 mx-auto" />
-                </button>
-              </div>
+          <li key={section.id} className="admin-section-row">
+            <div className="admin-section-order">
+              <span className="admin-section-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <button type="button" className="btn-icon" aria-label={`Monter ${section.title}`} onClick={() => moveSection(index, -1)} disabled={loading || index === 0}><ArrowUpIcon aria-hidden="true" /></button>
+              <button type="button" className="btn-icon" aria-label={`Descendre ${section.title}`} onClick={() => moveSection(index, 1)} disabled={loading || index === sortedSections.length - 1}><ArrowDownIcon aria-hidden="true" /></button>
             </div>
-
-            <div className="mt-4 rounded-md px-4 py-3 text-sm text-secondary-600" style={{ background: '#f6f7f2' }}>
-              <ContentSummary section={section} />
+            <div className="admin-section-body">
+              <div className="admin-section-title">
+                <h2>{section.title}</h2>
+                <span className="admin-section-type">{typeLabel(section.type)}</span>
+                <span className={'admin-status' + (section.visible ? '' : ' is-muted')}>{section.visible ? 'Visible' : 'Masquée'}</span>
+              </div>
+              <div className="admin-section-summary"><ContentSummary section={section} /></div>
             </div>
-          </div>
+            <div className="admin-section-actions">
+              <button type="button" className="btn-icon" onClick={() => handleToggleVisibility(section.id, section.visible)} disabled={loading} title={section.visible ? 'Masquer' : 'Afficher'} aria-label={(section.visible ? 'Masquer ' : 'Afficher ') + section.title}>
+                {section.visible ? <EyeIcon aria-hidden="true" /> : <EyeSlashIcon aria-hidden="true" />}
+              </button>
+              <button type="button" className="btn-secondary" onClick={() => handleEditSection(section)} aria-label={'Modifier ' + section.title}><PencilIcon aria-hidden="true" />Modifier</button>
+              <button type="button" className="btn-icon" onClick={() => handleDeleteSection(section)} disabled={loading} title="Supprimer" aria-label={'Supprimer ' + section.title}><TrashIcon aria-hidden="true" /></button>
+            </div>
+          </li>
         ))}
-      </div>
-    </div>
+      </ol>
+    </>
   )
 }
 

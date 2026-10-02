@@ -1,297 +1,149 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+import { AcademicCapIcon, ArrowTopRightOnSquareIcon, DocumentTextIcon, UserIcon } from '@heroicons/react/24/outline'
 import { usePortfolio } from '../../contexts/PortfolioContext'
-import { 
-  EyeIcon,
-  DocumentTextIcon,
-  PhotoIcon,
-  UserIcon,
-  ChartBarIcon,
-  SparklesIcon,
-  RocketLaunchIcon,
-  CogIcon,
-  ArrowTrendingUpIcon
-} from '@heroicons/react/24/outline'
+import { typeLabel } from '../../components/admin/structured/schemas'
+
+const PROFILE_FIELDS = ['nom', 'prenom', 'grade', 'fonction', 'affiliation', 'laboratoire', 'equipe', 'email', 'gsm', 'photo', 'mission', 'tagline']
+
+const plural = (n, word) => `${n} ${word}${n > 1 ? 's' : ''}`
+const count = (value) => (Array.isArray(value) ? value.length : 0)
+
+// Résumé lisible du contenu d'une section, selon son type.
+const summarize = ({ type, content }) => {
+  if (type === 'contact') return 'Coordonnées du profil'
+  if (type === 'about') return `${plural(count(content?.formations), 'formation')} · ${plural(count(content?.langues), 'langue')}`
+  if (Array.isArray(content)) return content.length ? plural(content.length, 'élément') : 'Aucun élément'
+  if (type === 'text' || typeof content === 'string') return String(content ?? '').trim() ? 'Texte' : 'Texte vide'
+  return 'Aucun contenu'
+}
 
 const Dashboard = () => {
   const { portfolioData } = usePortfolio()
   const profile = portfolioData.profile || {}
-  // Share of the public profile fields that are actually filled in.
-  const profileFields = ['nom', 'prenom', 'grade', 'fonction', 'affiliation', 'laboratoire', 'equipe', 'email', 'gsm', 'photo', 'mission']
-  const filledFields = profileFields.filter(field => String(profile[field] ?? '').trim()).length
-  const hiddenSections = portfolioData.sections.filter(s => !s.visible).length
+  const sections = portfolioData.sections || []
+  const orderedSections = [...sections].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+  const visibleCount = sections.filter(s => s.visible).length
+  const hiddenCount = sections.length - visibleCount
+  const filledCount = PROFILE_FIELDS.filter(field => String(profile[field] ?? '').trim()).length
+  const emptyCount = PROFILE_FIELDS.length - filledCount
+  const contentCount = type => count(sections.find(s => s.type === type)?.content)
+  const fullName = [profile.titre, profile.prenom, profile.nom].filter(Boolean).join(' ')
 
   const stats = [
-    {
-      name: 'Sections visibles',
-      value: portfolioData.sections.filter(s => s.visible).length,
-      total: portfolioData.sections.length,
-      icon: EyeIcon,
-      gradient: 'from-emerald-500 to-teal-600',
-      bgGradient: 'from-emerald-50 to-teal-50',
-      change: hiddenSections ? `${hiddenSections} masquée${hiddenSections > 1 ? 's' : ''}` : 'Toutes visibles',
-      changeType: hiddenSections ? 'neutral' : 'positive'
-    },
-    {
-      name: 'Total sections',
-      value: portfolioData.sections.length,
-      icon: DocumentTextIcon,
-      gradient: 'from-blue-500 to-indigo-600',
-      bgGradient: 'from-blue-50 to-indigo-50',
-      change: 'Sur le site',
-      changeType: 'neutral'
-    },
-    {
-      name: 'Profil complété',
-      value: `${Math.round(filledFields / profileFields.length * 100)}%`,
-      icon: UserIcon,
-      gradient: 'from-purple-500 to-pink-600',
-      bgGradient: 'from-purple-50 to-pink-50',
-      change: filledFields === profileFields.length ? 'Complet' : `${profileFields.length - filledFields} champ${profileFields.length - filledFields > 1 ? 's' : ''} vide${profileFields.length - filledFields > 1 ? 's' : ''}`,
-      changeType: filledFields === profileFields.length ? 'positive' : 'neutral'
-    },
-    {
-      name: 'Photo de profil',
-      value: profile.photo ? '1' : '0',
-      icon: PhotoIcon,
-      gradient: 'from-orange-500 to-red-600',
-      bgGradient: 'from-orange-50 to-red-50',
-      change: profile.photo ? 'Ajoutée' : 'À ajouter',
-      changeType: profile.photo ? 'positive' : 'neutral'
-    }
+    { label: 'Sections visibles', value: `${visibleCount} / ${sections.length}`, note: hiddenCount ? plural(hiddenCount, 'masquée') : 'Toutes visibles' },
+    { label: 'Profil complété', value: `${Math.round(filledCount / PROFILE_FIELDS.length * 100)} %`, note: emptyCount ? `${plural(emptyCount, 'champ')} à renseigner` : 'Complet' },
+    { label: 'Publications', value: contentCount('publications'), note: 'Articles et communications' },
+    { label: 'Cours', value: contentCount('teaching'), note: 'Enseignements' }
   ]
 
-  const quickActions = [
-    {
-      title: 'Modifier le profil',
-      description: 'Mettre à jour vos informations personnelles',
-      href: '/admin/profile',
-      icon: UserIcon,
-      gradient: 'from-blue-500 to-cyan-600',
-      bgGradient: 'from-blue-50 to-cyan-50'
-    },
-    {
-      title: 'Gérer mes cours',
-      description: 'Ajouter ou modifier vos enseignements',
-      href: '/admin/courses',
-      icon: DocumentTextIcon,
-      gradient: 'from-purple-500 to-indigo-600',
-      bgGradient: 'from-purple-50 to-indigo-50'
-    },
-    {
-      title: 'Gérer les sections',
-      description: 'Organiser le contenu de votre portfolio',
-      href: '/admin/sections',
-      icon: CogIcon,
-      gradient: 'from-emerald-500 to-teal-600',
-      bgGradient: 'from-emerald-50 to-teal-50'
-    },
-    {
-      title: 'Prévisualiser',
-      description: 'Voir votre portfolio en ligne',
-      href: '/',
-      icon: EyeIcon,
-      gradient: 'from-orange-500 to-red-600',
-      bgGradient: 'from-orange-50 to-red-50',
-      external: true
-    }
+  const profileRows = [
+    ['Nom complet', fullName],
+    ['Grade', profile.grade],
+    ['Fonction', profile.fonction],
+    ['Email', profile.email],
+    ['Téléphone', profile.gsm]
+  ]
+
+  const quickLinks = [
+    { title: 'Modifier le profil', description: 'Identité, coordonnées et présentation', to: '/admin/profile', icon: UserIcon },
+    { title: 'Gérer les sections', description: 'Contenu, ordre et visibilité', to: '/admin/sections', icon: DocumentTextIcon },
+    { title: 'Gérer mes cours', description: 'Ajouter ou modifier vos enseignements', to: '/admin/courses', icon: AcademicCapIcon },
+    { title: 'Voir le site', description: 'Consulter le portfolio public', to: '/', icon: ArrowTopRightOnSquareIcon, external: true }
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Header moderne */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-700 rounded-3xl mx-6 mt-6 mb-8">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30"></div>
-        <div className="relative px-8 py-12">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center mb-4">
-                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl mr-4">
-                  <ChartBarIcon className="h-8 w-8 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-4xl font-bold text-white mb-2">
-                    Tableau de bord
-                  </h1>
-                  <p className="text-blue-100 text-lg">
-                    Vue d'ensemble de votre portfolio académique
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="hidden lg:block">
-              <div className="flex items-center space-x-4">
-                <div className="p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+    <div className="admin-container">
+      <header className="admin-page-header">
+        <div>
+          <p className="eyebrow">Administration</p>
+          <h1>Bonjour{profile.prenom ? ` ${profile.prenom}` : ''}, <em>tableau de bord.</em></h1>
+          <p>Vue d’ensemble de votre portfolio : sections publiées, profil et accès rapides.</p>
+        </div>
+      </header>
+
+      <ul className="admin-stats" aria-label="Chiffres clés">
+        {stats.map(stat => (
+          <li key={stat.label} className="admin-stat">
+            <strong>{stat.value}</strong>
+            <span>{stat.label}</span>
+            <small>{stat.note}</small>
+          </li>
+        ))}
+      </ul>
+
+      <div className="admin-grid-main">
+        <section className="admin-panel" aria-labelledby="dash-sections">
+          <div className="admin-panel-header">
+            <h2 id="dash-sections">État des sections</h2>
+          </div>
+          <div className="admin-panel-body">
+            {orderedSections.length > 0 ? (
+              <ul className="admin-list">
+                {orderedSections.map(section => (
+                  <li key={section.id}>
                     <div>
-                      <p className="text-white font-medium">Portfolio en ligne</p>
-                      <p className="text-blue-100 text-sm">Synchronisation automatique</p>
+                      <h3>{section.title}</h3>
+                      <p>{typeLabel(section.type)} · {summarize(section)}</p>
                     </div>
-                  </div>
-                </div>
-              </div>
+                    <span className={`admin-status${section.visible ? '' : ' is-muted'}`}>{section.visible ? 'Visible' : 'Masquée'}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm" style={{ color: 'var(--muted)' }}>Aucune section pour le moment.</p>
+            )}
+            <div className="mt-6">
+              <Link to="/admin/sections" className="btn-secondary">Gérer les sections</Link>
             </div>
           </div>
-        </div>
-        {/* Éléments décoratifs */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-white/10 to-transparent rounded-full -translate-y-48 translate-x-48"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-blue-400/20 to-transparent rounded-full translate-y-32 -translate-x-32"></div>
-      </div>
+        </section>
 
-      <div className="px-6 space-y-8">
-        {/* Statistiques modernes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <div 
-              key={stat.name} 
-              className={`group relative overflow-hidden bg-gradient-to-br ${stat.bgGradient} rounded-2xl p-6 border border-white/60 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-white/10"></div>
-              <div className="relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 bg-gradient-to-r ${stat.gradient} rounded-xl shadow-lg`}>
-                    <stat.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    stat.changeType === 'positive' ? 'bg-green-100 text-green-700' :
-                    stat.changeType === 'negative' ? 'bg-red-100 text-red-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                    {stat.change}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">
-                    {stat.name}
-                  </p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {stat.value}
-                    {stat.total && <span className="text-lg text-gray-500 ml-1">/{stat.total}</span>}
-                  </p>
-                </div>
-              </div>
+        <div>
+          <section className="admin-panel" aria-labelledby="dash-profile">
+            <div className="admin-panel-header">
+              <h2 id="dash-profile">Profil</h2>
+              {!String(profile.photo ?? '').trim() && <span className="admin-status is-warning">Photo de profil manquante</span>}
             </div>
-          ))}
-        </div>
-
-        {/* Contenu principal */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* État des sections */}
-          <div className="xl:col-span-2">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/60 shadow-lg">
-              <div className="flex items-center mb-6">
-                <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl mr-3">
-                  <ChartBarIcon className="h-5 w-5 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900">État des sections</h3>
-              </div>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {portfolioData.sections.map((section, index) => (
-                  <div 
-                    key={section.id} 
-                    className="group flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-100 hover:shadow-md transition-all duration-200"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-900 mb-1">{section.title}</div>
-                      <div className="text-sm text-gray-600 mb-1">Type: {section.type}</div>
-                      <div className="text-xs text-gray-500">
-                        Contenu: {
-                          section.type === 'list' && Array.isArray(section.content) 
-                            ? `${section.content.length} éléments`
-                            : section.type === 'cards' && Array.isArray(section.content)
-                              ? `${section.content.length} cartes`
-                              : section.type === 'text' && section.content
-                                ? `${section.content.length} caractères`
-                                : 'Vide'
-                        }
-                      </div>
-                    </div>
-                    <div className="flex items-center ml-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
-                        section.visible 
-                          ? 'bg-green-100 text-green-800 shadow-sm' 
-                          : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {section.visible ? '✓ Visible' : '○ Masqué'}
-                      </span>
-                    </div>
+            <div className="admin-panel-body">
+              <dl className="admin-dl">
+                {profileRows.map(([label, value]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value || '—'}</dd>
                   </div>
                 ))}
+              </dl>
+              <div className="mt-6">
+                <Link to="/admin/profile" className="btn-secondary">Modifier le profil</Link>
               </div>
             </div>
-          </div>
-
-          {/* Informations du profil */}
-          <div className="xl:col-span-1">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/60 shadow-lg">
-              <div className="flex items-center mb-6">
-                <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl mr-3">
-                  <UserIcon className="h-5 w-5 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900">Profil</h3>
-              </div>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-gray-50 to-white rounded-xl">
-                  <span className="text-gray-600 font-medium">Nom complet</span>
-                  <span className="font-bold text-gray-900">{portfolioData.profile.prenom} {portfolioData.profile.nom}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-gray-50 to-white rounded-xl">
-                  <span className="text-gray-600 font-medium">Email</span>
-                  <span className="font-bold text-gray-900 text-sm">{portfolioData.profile.email}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-gray-50 to-white rounded-xl">
-                  <span className="text-gray-600 font-medium">Téléphone</span>
-                  <span className="font-bold text-gray-900">{portfolioData.profile.gsm}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-gray-50 to-white rounded-xl">
-                  <span className="text-gray-600 font-medium">Grade</span>
-                  <span className="font-bold text-gray-900">{profile.grade || '—'}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Actions rapides modernes */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/60 shadow-lg">
-          <div className="flex items-center mb-6">
-            <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl mr-3">
-              <RocketLaunchIcon className="h-5 w-5 text-white" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900">Actions rapides</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {quickActions.map((action, index) => (
-              <a
-                key={action.title}
-                href={action.href}
-                target={action.external ? '_blank' : undefined}
-                rel={action.external ? 'noopener noreferrer' : undefined}
-                className={`group relative overflow-hidden bg-gradient-to-br ${action.bgGradient} rounded-2xl p-6 border border-white/60 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 block`}
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-white/10 group-hover:from-white/60 group-hover:to-white/20 transition-all duration-300"></div>
-                <div className="relative">
-                  <div className={`p-3 bg-gradient-to-r ${action.gradient} rounded-xl shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    <action.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-gray-900 mb-2 group-hover:text-gray-800 transition-colors">
-                      {action.title}
-                    </div>
-                    <div className="text-sm text-gray-600 group-hover:text-gray-700 transition-colors">
-                      {action.description}
-                    </div>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
+          </section>
         </div>
       </div>
+
+      <section className="admin-panel" style={{ marginTop: 24 }} aria-labelledby="dash-links">
+        <div className="admin-panel-header">
+          <h2 id="dash-links">Accès rapides</h2>
+        </div>
+        <div className="admin-panel-body">
+          <nav className="admin-links" aria-label="Accès rapides">
+            {quickLinks.map(({ title, description, to, icon: Icon, external }) => (
+              external ? (
+                <a key={title} href={to} target="_blank" rel="noopener noreferrer">
+                  <Icon aria-hidden="true" />
+                  <span><strong>{title}</strong><span className="sr-only"> (nouvel onglet)</span><small>{description}</small></span>
+                </a>
+              ) : (
+                <Link key={title} to={to}>
+                  <Icon aria-hidden="true" />
+                  <span><strong>{title}</strong><small>{description}</small></span>
+                </Link>
+              )
+            ))}
+          </nav>
+        </div>
+      </section>
     </div>
   )
 }
