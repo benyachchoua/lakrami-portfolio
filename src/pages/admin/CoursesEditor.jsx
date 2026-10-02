@@ -41,7 +41,7 @@ const CoursesEditor = () => {
       
       const result = await updateSection('enseignement', {
         title: 'Enseignement',
-        type: 'cards',
+        type: coursesSection?.type ?? 'teaching',
         content: updatedCourses,
         visible: coursesSection?.visible !== false,
         order: coursesSection?.order ?? 12
@@ -50,7 +50,7 @@ const CoursesEditor = () => {
       if (result.success) {
         toast.success('Cours supprimé avec succès!')
       } else {
-        toast.error('Erreur lors de la suppression')
+        toast.error(result.error || 'Erreur lors de la suppression')
       }
     }
   }
@@ -129,7 +129,7 @@ const CoursesEditor = () => {
       // Mettre à jour la section des cours
       const result = await updateSection('enseignement', {
         title: 'Enseignement',
-        type: 'cards',
+        type: coursesSection?.type ?? 'teaching',
         content: validCourses, // ✅ CORRECTION: utiliser validCourses au lieu de updatedCourses
         visible: coursesSection?.visible !== false,
         order: coursesSection?.order ?? 12
@@ -140,7 +140,7 @@ const CoursesEditor = () => {
         setIsEditing(false)
         setEditingCourseIndex(null)
       } else {
-        toast.error('Erreur lors de la sauvegarde')
+        toast.error(result.error || 'Erreur lors de la sauvegarde')
       }
     } catch (error) {
       console.error('Erreur:', error)

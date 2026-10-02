@@ -31,6 +31,9 @@ const SimpleEditor = ({ section, onSave, onCancel, loading }) => {
         setError('content', { type: 'validate', message: 'Saisissez un tableau ou un objet JSON valide.' })
         return
       }
+    } else if (data.type !== 'text') {
+      // Specialised sections (research, teaching…) have no content field here; keep what is stored.
+      content = section?.content ?? ''
     }
     await onSave({ title: data.title.trim(), type: data.type, content, visible: data.visible })
   }

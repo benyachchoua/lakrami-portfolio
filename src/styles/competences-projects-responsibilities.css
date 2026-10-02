@@ -1,0 +1,86 @@
+/* Compétences, Projets, Responsabilités : academic, sober presentation.
+   Tokens come from :root in index.css (--ink, --teal, --paper, --muted, --line). */
+
+.skills-section, .duties-section { background: #fff; }
+.projects-section { background: var(--paper); }
+
+/* Shared "voir le détail" button and item footer */
+.cpr-item-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 18px; margin-top: 14px; }
+.cpr-count { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.cpr-more { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; min-width: 44px; padding: 0 2px; font-size: 12px; font-weight: 600; color: var(--teal); text-decoration: underline; text-decoration-color: #9fb8ae; text-underline-offset: 5px; text-align: left; }
+.cpr-more:hover { color: #1b5146; text-decoration-color: currentColor; }
+.cpr-more svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* Compétences */
+.skills-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 72px; list-style: none; margin: 0; padding: 0; }
+.skills-item { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 0 14px; align-content: start; padding: 28px 0 22px; border-top: 1px solid var(--line); }
+.skills-number { color: var(--teal); font-size: 12px; font-weight: 500; letter-spacing: .08em; padding-top: 6px; }
+.skills-item h3 { font-size: 18px; font-weight: 400; line-height: 1.5; margin: 0 0 10px; }
+.skills-desc { color: var(--muted); font-size: 13.5px; line-height: 1.85; margin: 0; }
+
+/* Projets */
+.projects-list { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--line); }
+.projects-entry { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 28px; padding: 32px 0 26px; border-top: 1px solid var(--line); }
+.projects-year { margin: 0; color: var(--teal); font-family: Georgia, serif; font-size: 19px; line-height: 1.5; }
+.projects-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-bottom: 10px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.projects-status { display: inline-flex; align-items: center; padding: 3px 9px; border: 1px solid #b8c6bc; border-radius: 3px; font-size: 10px; font-weight: 600; letter-spacing: .08em; color: #3f6054; }
+.projects-status--current { background: var(--teal); border-color: var(--teal); color: #fff; }
+.projects-entry h3 { max-width: 780px; margin: 0; font-size: 20px; font-weight: 400; line-height: 1.55; }
+.projects-desc { max-width: 760px; margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.85; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Responsabilités */
+.duties-list { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--line); }
+.duties-entry { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 40px; padding: 32px 0 26px; border-top: 1px solid var(--line); }
+.duties-when { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.duties-period { margin: 0; color: var(--teal); font-family: Georgia, serif; font-size: 19px; line-height: 1.5; }
+.duties-status { display: inline-flex; align-items: center; padding: 3px 9px; border: 1px solid #b8c6bc; border-radius: 3px; font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #3f6054; }
+.duties-status--current { background: var(--teal); border-color: var(--teal); color: #fff; }
+.duties-org { margin: 0 0 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.duties-entry h3 { max-width: 780px; margin: 0; font-size: 20px; font-weight: 400; line-height: 1.55; }
+.duties-desc { max-width: 760px; margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.85; }
+
+/* Shared detail dialog (native <dialog>: focus trap and Escape come for free) */
+.cpr-dialog { padding: 0; border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--ink); width: min(860px, calc(100vw - 24px)); max-width: none; max-height: min(90dvh, 820px); overflow: hidden; box-shadow: 0 10px 32px #172f4024; }
+.cpr-dialog[open] { display: flex; flex-direction: column; }
+.cpr-dialog::backdrop { background: #172f408c; }
+body:has(dialog.cpr-dialog[open]) { overflow: hidden; }
+.cpr-dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-shrink: 0; padding: 26px 28px 22px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.cpr-dialog-head > div { min-width: 0; }
+.cpr-dialog-head .eyebrow { margin-bottom: 8px; }
+.cpr-dialog-head h2 { margin: 0; font-size: clamp(20px, 2.4vw, 26px); font-weight: 400; letter-spacing: -.02em; line-height: 1.4; }
+.cpr-dialog-sub { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+.cpr-close { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border: 1px solid #b8c2bc; border-radius: 4px; background: #fff; color: var(--ink); }
+.cpr-close:hover { border-color: var(--teal); color: var(--teal); }
+.cpr-close svg { width: 20px; height: 20px; }
+.cpr-dialog-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 28px 32px; }
+.cpr-block { padding-top: 26px; }
+.cpr-block + .cpr-block { margin-top: 26px; border-top: 1px solid var(--line); }
+.cpr-block h3 { margin: 0 0 12px; font: 600 10px/1.7 'Inter', system-ui, sans-serif; letter-spacing: .15em; text-transform: uppercase; color: var(--teal); }
+.cpr-text { margin: 0; color: #32444d; font-size: 14px; line-height: 1.85; }
+.cpr-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 40px; margin: 0; }
+.cpr-facts > div { min-width: 0; }
+.cpr-facts dt { margin-bottom: 5px; font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--teal); }
+.cpr-facts dd { margin: 0; color: #32444d; font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+.cpr-bullets, .cpr-chips, .cpr-entries { list-style: none; margin: 0; padding: 0; }
+.cpr-bullets li { position: relative; padding: 9px 0 9px 20px; border-bottom: 1px solid var(--line); color: #32444d; font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+.cpr-bullets li:last-child { border-bottom: 0; }
+.cpr-bullets li::before { content: ''; position: absolute; left: 2px; top: 21px; width: 8px; height: 1px; background: var(--teal); }
+.cpr-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.cpr-chips li { padding: 6px 11px; border-radius: 3px; background: #edf1eb; color: #2f4f44; font-size: 12px; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
+.cpr-entries li { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.cpr-entries li:first-child { padding-top: 0; }
+.cpr-entries li:last-child { border-bottom: 0; padding-bottom: 0; }
+.cpr-entries h4 { margin: 0 0 3px; font: 600 14px/1.6 'Inter', system-ui, sans-serif; }
+.cpr-entries p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.75; }
+
+@media (max-width: 767px) {
+  .skills-list { grid-template-columns: minmax(0, 1fr); }
+  .skills-item { padding: 24px 0 16px; }
+  .skills-item h3, .projects-entry h3, .duties-entry h3 { font-size: 17px; }
+  .projects-entry, .duties-entry { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 26px 0 18px; }
+  .duties-when { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .projects-year, .duties-period { font-size: 17px; }
+  .cpr-dialog-head { padding: 20px 18px 16px; gap: 12px; }
+  .cpr-dialog-body { padding: 2px 18px 26px; }
+  .cpr-facts { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+}

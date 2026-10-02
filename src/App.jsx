@@ -11,15 +11,8 @@ import ProfileEditor from './pages/admin/ProfileEditor'
 import SectionsEditor from './pages/admin/SectionsEditor'
 import CoursesEditor from './pages/admin/CoursesEditor'
 import ProtectedRoute from './components/ProtectedRoute'
-import { useEffect } from 'react'
 
 function App() {
-  useEffect(() => {
-    // Éviter les erreurs de hydratation
-    if (typeof window !== 'undefined') {
-      // Code côté client uniquement
-    }
-  }, [])
   return (
     <AuthProvider>
       <PortfolioProvider>

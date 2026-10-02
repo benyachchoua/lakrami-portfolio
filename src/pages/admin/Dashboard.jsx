@@ -14,6 +14,11 @@ import {
 
 const Dashboard = () => {
   const { portfolioData } = usePortfolio()
+  const profile = portfolioData.profile || {}
+  // Share of the public profile fields that are actually filled in.
+  const profileFields = ['nom', 'prenom', 'grade', 'fonction', 'affiliation', 'laboratoire', 'equipe', 'email', 'gsm', 'photo', 'mission']
+  const filledFields = profileFields.filter(field => String(profile[field] ?? '').trim()).length
+  const hiddenSections = portfolioData.sections.filter(s => !s.visible).length
 
   const stats = [
     {
@@ -23,8 +28,8 @@ const Dashboard = () => {
       icon: EyeIcon,
       gradient: 'from-emerald-500 to-teal-600',
       bgGradient: 'from-emerald-50 to-teal-50',
-      change: '+12%',
-      changeType: 'positive'
+      change: hiddenSections ? `${hiddenSections} masquée${hiddenSections > 1 ? 's' : ''}` : 'Toutes visibles',
+      changeType: hiddenSections ? 'neutral' : 'positive'
     },
     {
       name: 'Total sections',
@@ -32,26 +37,26 @@ const Dashboard = () => {
       icon: DocumentTextIcon,
       gradient: 'from-blue-500 to-indigo-600',
       bgGradient: 'from-blue-50 to-indigo-50',
-      change: '+8%',
-      changeType: 'positive'
+      change: 'Sur le site',
+      changeType: 'neutral'
     },
     {
       name: 'Profil complété',
-      value: '100%',
+      value: `${Math.round(filledFields / profileFields.length * 100)}%`,
       icon: UserIcon,
       gradient: 'from-purple-500 to-pink-600',
       bgGradient: 'from-purple-50 to-pink-50',
-      change: 'Complet',
-      changeType: 'neutral'
+      change: filledFields === profileFields.length ? 'Complet' : `${profileFields.length - filledFields} champ${profileFields.length - filledFields > 1 ? 's' : ''} vide${profileFields.length - filledFields > 1 ? 's' : ''}`,
+      changeType: filledFields === profileFields.length ? 'positive' : 'neutral'
     },
     {
-      name: 'Médias',
-      value: '1',
+      name: 'Photo de profil',
+      value: profile.photo ? '1' : '0',
       icon: PhotoIcon,
       gradient: 'from-orange-500 to-red-600',
       bgGradient: 'from-orange-50 to-red-50',
-      change: 'Stable',
-      changeType: 'neutral'
+      change: profile.photo ? 'Ajoutée' : 'À ajouter',
+      changeType: profile.photo ? 'positive' : 'neutral'
     }
   ]
 
@@ -243,7 +248,7 @@ const Dashboard = () => {
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gradient-to-r from-gray-50 to-white rounded-xl">
                   <span className="text-gray-600 font-medium">Grade</span>
-                  <span className="font-bold text-gray-900">Maître de Conférence</span>
+                  <span className="font-bold text-gray-900">{profile.grade || '—'}</span>
                 </div>
               </div>
             </div>

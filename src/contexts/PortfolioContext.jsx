@@ -87,7 +87,10 @@ export const PortfolioProvider = ({ children }) => {
     previous => ({ ...previous, profile: { ...previous.profile, ...profile } }))
 
   const updateSection = (sectionId, sectionData) => mutate('/api/sections/' + userPath + '/' + encodeURIComponent(sectionId), jsonRequest('PUT', sectionData),
-    previous => ({ ...previous, sections: previous.sections.map(section => section.id === sectionId ? { ...section, ...sectionData } : section) }))
+    // The server upserts, so a section missing locally must be appended rather than dropped.
+    previous => ({ ...previous, sections: previous.sections.some(section => section.id === sectionId)
+      ? previous.sections.map(section => section.id === sectionId ? { ...section, ...sectionData } : section)
+      : [...previous.sections, { id: sectionId, visible: true, ...sectionData }] }))
 
   const addSection = (sectionData) => {
     const section = { ...sectionData, order: Math.max(0, ...portfolioData.sections.map(item => Number(item.order) || 0)) + 1, visible: sectionData.visible !== false }

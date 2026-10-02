@@ -213,6 +213,35 @@ const ProfileEditor = () => {
                 </div>
 
                 <div>
+                  <label htmlFor="profile-email" className="block text-sm font-semibold text-gray-700 mb-3">
+                    <EnvelopeIcon className="h-4 w-4 inline mr-2" aria-hidden="true" />
+                    Email de contact
+                  </label>
+                  <input
+                    id="profile-email"
+                    {...register('email', { pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Format d’email invalide' } })}
+                    type="email"
+                    autoComplete="email"
+                    className="w-full px-4 py-3 bg-white/70 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm"
+                  />
+                  {errors.email && <p role="alert" className="mt-2 text-sm text-red-600">{errors.email.message}</p>}
+                </div>
+
+                <div>
+                  <label htmlFor="profile-gsm" className="block text-sm font-semibold text-gray-700 mb-3">
+                    <PhoneIcon className="h-4 w-4 inline mr-2" aria-hidden="true" />
+                    Téléphone
+                  </label>
+                  <input
+                    id="profile-gsm"
+                    {...register('gsm')}
+                    type="tel"
+                    autoComplete="tel"
+                    className="w-full px-4 py-3 bg-white/70 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 backdrop-blur-sm"
+                  />
+                </div>
+
+                <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
                     <GlobeAltIcon className="h-4 w-4 inline mr-2" />
                     Langues parlées

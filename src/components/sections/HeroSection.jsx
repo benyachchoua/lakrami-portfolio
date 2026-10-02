@@ -26,7 +26,7 @@ const HeroSection = ({ profile = {}, sections = [] }) => {
         </div>
         <div className="profile-panel">
           <div className="profile-portrait">
-            {photo && !imageError ? <img src={photo} alt={'Portrait de ' + profile.prenom + ' ' + profile.nom} width="440" height="470" fetchPriority="high" onError={() => setImageError(true)} /> : <div className="portrait-placeholder"><span aria-hidden="true">{profile.prenom?.[0] || 'F'}{profile.nom?.[0] || 'L'}</span><AcademicCapIcon aria-hidden="true" /></div>}
+            {photo && !imageError ? <img src={photo} alt={'Portrait de ' + profile.prenom + ' ' + profile.nom} width="440" height="470" fetchpriority="high" onError={() => setImageError(true)} /> : <div className="portrait-placeholder"><span aria-hidden="true">{profile.prenom?.[0] || 'F'}{profile.nom?.[0] || 'L'}</span><AcademicCapIcon aria-hidden="true" /></div>}
             <div className="portrait-caption"><span>Portfolio académique</span><strong>{profile.fonction}</strong></div>
           </div>
           <div className="profile-panel-note"><span className="profile-note-rule" aria-hidden="true" /><p>{profile.equipe || profile.laboratoire || profile.affiliation}</p></div>

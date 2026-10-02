@@ -12,7 +12,17 @@ import CompetencesSection from '../components/sections/CompetencesSection'
 import ContactSection from '../components/sections/ContactSection'
 
 const Home = () => {
-  const { portfolioData } = usePortfolio()
+  const { portfolioData, ready, error, loadPortfolioData } = usePortfolio()
+
+  if (!ready) return (
+    <section className="page-feedback" aria-live="polite">
+      {error ? <>
+        <h1>Le portfolio est momentanément indisponible</h1>
+        <p>{error}</p>
+        <div><button type="button" className="btn-primary" onClick={() => loadPortfolioData()}>Réessayer</button></div>
+      </> : <p role="status">Chargement du portfolio…</p>}
+    </section>
+  )
 
   return (
     <div className="animate-fade-in">

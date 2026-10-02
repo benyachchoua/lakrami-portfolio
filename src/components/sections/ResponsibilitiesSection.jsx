@@ -1,340 +1,189 @@
-import React, { useState } from 'react'
-import { 
-  ShieldCheckIcon,
-  BuildingOffice2Icon,
-  UserGroupIcon,
-  AcademicCapIcon,
-  XMarkIcon,
-  CalendarIcon,
-  SparklesIcon,
-  ArrowTopRightOnSquareIcon,
-  CpuChipIcon
-} from '@heroicons/react/24/outline'
+import { useEffect, useRef, useState } from 'react'
+import { ArrowRightIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import '../../styles/competences-projects-responsibilities.css'
+
+const defaultResponsibilities = [
+  {
+    id: 1,
+    title: "Directrice du pôle de digitalisation",
+    organization: "Université Chouaib Doukkali",
+    period: "2023-2024",
+    status: "Terminé",
+    description: "Direction stratégique de la transformation digitale de l'université avec 8 établissements et plus de 30 000 utilisateurs",
+    details: {
+      type: "Direction stratégique",
+      périmètre: "8 établissements universitaires",
+      utilisateurs: "Plus de 30 000 comptes académiques",
+      missions: [
+        "Définir la stratégie de digitalisation de l'université",
+        "Superviser la mise en œuvre des projets numériques",
+        "Coordonner les équipes techniques et pédagogiques",
+        "Assurer la formation aux outils numériques",
+        "Gérer les infrastructures et plateformes digitales"
+      ]
+    }
+  },
+  {
+    id: 2,
+    title: "Responsable pédagogique Master SIGL",
+    organization: "Faculté des Sciences El Jadida",
+    period: "2020-2024",
+    status: "Actuel",
+    description: "Coordination pédagogique du Master Systèmes d'Information et Génie Logiciel avec supervision de 120 étudiants",
+    details: {
+      type: "Responsabilité pédagogique",
+      effectifs: "120 étudiants par promotion",
+      spécialité: "Systèmes d'Information et Génie Logiciel",
+      missions: [
+        "Conception et mise à jour des programmes pédagogiques",
+        "Coordination des équipes enseignantes",
+        "Suivi académique et professionnel des étudiants",
+        "Relations avec les entreprises partenaires",
+        "Évaluation et amélioration continue des formations"
+      ]
+    }
+  },
+  {
+    id: 3,
+    title: "Coordinatrice des stages et projets",
+    organization: "Faculté des Sciences El Jadida",
+    period: "2019-2024",
+    status: "Actuel",
+    description: "Gestion des relations entreprises et coordination des stages professionnels pour plus de 200 étudiants annuellement",
+    details: {
+      type: "Coordination professionnelle",
+      volume: "200+ stages par an",
+      partenaires: "50+ entreprises partenaires",
+      missions: [
+        "Développement du réseau d'entreprises partenaires",
+        "Placement et suivi des stagiaires",
+        "Évaluation des projets de fin d'études",
+        "Organisation des soutenances",
+        "Médiation entreprises-étudiants"
+      ]
+    }
+  },
+  {
+    id: 4,
+    title: "Membre du conseil pédagogique",
+    organization: "Faculté des Sciences El Jadida",
+    period: "2018-2024",
+    status: "Actuel",
+    description: "Participation aux décisions stratégiques de la faculté et contribution à l'évolution des programmes d'enseignement",
+    details: {
+      type: "Gouvernance académique",
+      périmètre: "Faculté des Sciences",
+      domaines: "Informatique et Mathématiques",
+      missions: [
+        "Validation des programmes pédagogiques",
+        "Évaluation des enseignements",
+        "Politique de recrutement enseignant",
+        "Stratégie de développement académique",
+        "Relations internationales académiques"
+      ]
+    }
+  },
+  {
+    id: 5,
+    title: "Responsable qualité pédagogique",
+    organization: "Université Chouaib Doukkali",
+    period: "2017-2023",
+    status: "Terminé",
+    description: "Mise en place et supervision du système qualité pour l'amélioration continue des formations",
+    details: {
+      type: "Assurance qualité",
+      périmètre: "Formations informatiques",
+      certifications: "ISO 9001, référentiels nationaux",
+      missions: [
+        "Audit et évaluation des formations",
+        "Mise en place des procédures qualité",
+        "Formation des équipes aux standards qualité",
+        "Reporting et tableaux de bord qualité",
+        "Préparation aux accréditations"
+      ]
+    }
+  }
+]
+
+const statusClass = (status) => `duties-status${status === 'Actuel' ? ' duties-status--current' : ''}`
+const asList = (value) => (Array.isArray(value) ? value : value ? [value] : [])
 
 const ResponsibilitiesSection = ({ sections }) => {
   const [selectedResponsibility, setSelectedResponsibility] = useState(null)
+  const dialogRef = useRef(null)
+
+  useEffect(() => {
+    const node = dialogRef.current
+    if (!selectedResponsibility || !node || node.open) return
+    if (typeof node.showModal === 'function') node.showModal()
+    else node.setAttribute('open', '')
+  }, [selectedResponsibility])
+
   const responsibilitiesSection = sections.find(section => section.id === 'responsabilites')
-  
+
   if (!responsibilitiesSection || !responsibilitiesSection.visible) return null
 
-  // Utiliser le contenu de la base de données au lieu des données codées en dur
-  const responsibilitiesData = responsibilitiesSection.content && responsibilitiesSection.content.length > 0 
-    ? responsibilitiesSection.content 
-    : [
-        // Données par défaut si la base de données est vide
-        {
-          id: 1,
-          title: "Directrice du pôle de digitalisation",
-          organization: "Université Chouaib Doukkali",
-          period: "2023-2024",
-          status: "Terminé",
-          icon: CpuChipIcon,
-          color: "from-blue-500 to-cyan-500",
-          description: "Direction stratégique de la transformation digitale de l'université avec 8 établissements et plus de 30 000 utilisateurs",
-          details: {
-            type: "Direction stratégique",
-            périmètre: "8 établissements universitaires",
-            utilisateurs: "Plus de 30 000 comptes académiques",
-            missions: [
-              "Définir la stratégie de digitalisation de l'université",
-              "Superviser la mise en œuvre des projets numériques",
-              "Coordonner les équipes techniques et pédagogiques",
-              "Assurer la formation aux outils numériques",
-              "Gérer les infrastructures et plateformes digitales"
-            ]
-          }
-        },
-        {
-          id: 2,
-          title: "Responsable pédagogique Master SIGL",
-          organization: "Faculté des Sciences El Jadida",
-          period: "2020-2024",
-          status: "Actuel",
-          icon: AcademicCapIcon,
-          color: "from-green-500 to-teal-500",
-          description: "Coordination pédagogique du Master Systèmes d'Information et Génie Logiciel avec supervision de 120 étudiants",
-          details: {
-            type: "Responsabilité pédagogique",
-            effectifs: "120 étudiants par promotion",
-            spécialité: "Systèmes d'Information et Génie Logiciel",
-            missions: [
-              "Conception et mise à jour des programmes pédagogiques",
-              "Coordination des équipes enseignantes",
-              "Suivi académique et professionnel des étudiants",
-              "Relations avec les entreprises partenaires",
-              "Évaluation et amélioration continue des formations"
-            ]
-          }
-        },
-        {
-          id: 3,
-          title: "Coordinatrice des stages et projets",
-          organization: "Faculté des Sciences El Jadida",
-          period: "2019-2024",
-          status: "Actuel",
-          icon: UserGroupIcon,
-          color: "from-purple-500 to-indigo-500",
-          description: "Gestion des relations entreprises et coordination des stages professionnels pour plus de 200 étudiants annuellement",
-          details: {
-            type: "Coordination professionnelle",
-            volume: "200+ stages par an",
-            partenaires: "50+ entreprises partenaires",
-            missions: [
-              "Développement du réseau d'entreprises partenaires",
-              "Placement et suivi des stagiaires",
-              "Évaluation des projets de fin d'études",
-              "Organisation des soutenances",
-              "Médiation entreprises-étudiants"
-            ]
-          }
-        },
-        {
-          id: 4,
-          title: "Membre du conseil pédagogique",
-          organization: "Faculté des Sciences El Jadida",
-          period: "2018-2024",
-          status: "Actuel",
-          icon: BuildingOffice2Icon,
-          color: "from-orange-500 to-red-500",
-          description: "Participation aux décisions stratégiques de la faculté et contribution à l'évolution des programmes d'enseignement",
-          details: {
-            type: "Gouvernance académique",
-            périmètre: "Faculté des Sciences",
-            domaines: "Informatique et Mathématiques",
-            missions: [
-              "Validation des programmes pédagogiques",
-              "Évaluation des enseignements",
-              "Politique de recrutement enseignant",
-              "Stratégie de développement académique",
-              "Relations internationales académiques"
-            ]
-          }
-        },
-        {
-          id: 5,
-          title: "Responsable qualité pédagogique",
-          organization: "Université Chouaib Doukkali",
-          period: "2017-2023",
-          status: "Terminé",
-          icon: ShieldCheckIcon,
-          color: "from-pink-500 to-rose-500",
-          description: "Mise en place et supervision du système qualité pour l'amélioration continue des formations",
-          details: {
-            type: "Assurance qualité",
-            périmètre: "Formations informatiques",
-            certifications: "ISO 9001, référentiels nationaux",
-            missions: [
-              "Audit et évaluation des formations",
-              "Mise en place des procédures qualité",
-              "Formation des équipes aux standards qualité",
-              "Reporting et tableaux de bord qualité",
-              "Préparation aux accréditations"
-            ]
-          }
-        }
-      ]
+  // Contenu de la base de données ; données par défaut seulement si le contenu n'est pas une liste
+  const responsibilitiesData = Array.isArray(responsibilitiesSection.content) ? responsibilitiesSection.content : defaultResponsibilities
+
+  const closeDialog = () => dialogRef.current?.close()
+
+  const renderDialog = (responsibility) => {
+    const details = responsibility.details || {}
+    const facts = [
+      ['Type de responsabilité', details.type],
+      ['Période', responsibility.period],
+      ['Statut', responsibility.status],
+      ['Périmètre', details.périmètre],
+      ['Utilisateurs', details.utilisateurs]
+    ].filter(([, value]) => value)
+    const topics = asList(details.domaines || details.thématiques)
+    const missions = asList(details.missions)
+    const achievements = asList(details.réalisations)
+    return (
+      <dialog ref={dialogRef} className="cpr-dialog" aria-labelledby="duties-dialog-title" onClose={() => setSelectedResponsibility(null)} onClick={event => event.target === event.currentTarget && closeDialog()}>
+        <div className="cpr-dialog-head">
+          <div>
+            <p className="eyebrow">{responsibility.organization}</p>
+            <h2 id="duties-dialog-title">{responsibility.title}</h2>
+            {responsibility.period && <p className="cpr-dialog-sub">{responsibility.period}</p>}
+          </div>
+          <button type="button" className="cpr-close" onClick={closeDialog} aria-label="Fermer la fenêtre de détail"><XMarkIcon aria-hidden="true" /></button>
+        </div>
+        <div className="cpr-dialog-body">
+          <div className="cpr-block"><h3>Description</h3><p className="cpr-text">{responsibility.description}</p></div>
+          {facts.length > 0 && <div className="cpr-block"><dl className="cpr-facts">{facts.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></div>}
+          {missions.length > 0 && <div className="cpr-block"><h3>Missions principales</h3><ul className="cpr-bullets">{missions.map((mission, index) => <li key={index}>{mission}</li>)}</ul></div>}
+          {achievements.length > 0 && <div className="cpr-block"><h3>Principales réalisations</h3><ul className="cpr-bullets">{achievements.map((achievement, index) => <li key={index}>{achievement}</li>)}</ul></div>}
+          {topics.length > 0 && <div className="cpr-block"><h3>{details.domaines ? 'Domaines de recherche' : 'Thématiques de recherche'}</h3><ul className="cpr-chips">{topics.map((item, index) => <li key={index}>{item}</li>)}</ul></div>}
+        </div>
+      </dialog>
+    )
+  }
 
   return (
-    <section id="responsibilities" className="section-padding bg-slate-900 text-white relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.03%22%3E%3Cpolygon points=%2250 0 60 40 100 50 60 60 50 100 40 60 0 50 40 40%22/%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
-      
-      <div className="container-max relative z-10">
-        {/* Section Header */}
-        <div className="text-center mb-20">
-          <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm text-blue-300 rounded-full text-sm font-semibold mb-6 border border-white/20">
-            <ShieldCheckIcon className="h-4 w-4 mr-2" />
-            Leadership & Gouvernance
-          </div>
-          <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-            <span className="text-white">Responsabilités </span>
-            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              Administratives
-            </span>
-          </h2>
-          <p className="text-xl text-slate-300 max-w-4xl mx-auto leading-relaxed">
-            Mes fonctions de direction et de gouvernance dans l'enseignement supérieur 
-            et la recherche scientifique.
-          </p>
-        </div>
-
-        {/* Responsibilities Timeline */}
-        <div className="space-y-8 mb-16">
-          {responsibilitiesData.map((responsibility, index) => {
-            const IconComponent = responsibility.icon
-            return (
-              <div 
-                key={responsibility.id}
-                className="group relative"
-              >
-                {/* Timeline Line */}
-                {index < responsibilitiesData.length - 1 && (
-                  <div className="absolute left-8 top-20 w-0.5 h-16 bg-gradient-to-b from-blue-400 to-transparent"></div>
-                )}
-                
-                <div 
-                  className="flex items-start space-x-6 p-8 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl hover:bg-white/10 transition-all duration-500 hover:-translate-y-2 cursor-pointer"
-                  onClick={() => setSelectedResponsibility(responsibility)}
-                >
-                  {/* Icon */}
-                  <div className={`flex-shrink-0 w-16 h-16 bg-gradient-to-br ${responsibility.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                    <IconComponent className="h-8 w-8 text-white" />
-                  </div>
-                  
-                  {/* Content */}
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">
-                          {responsibility.title}
-                        </h3>
-                        <p className="text-blue-300 font-medium mb-1">{responsibility.organization}</p>
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center text-slate-300 text-sm">
-                            <CalendarIcon className="h-4 w-4 mr-1" />
-                            {responsibility.period}
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            responsibility.status === 'Actuel' 
-                              ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
-                              : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                          }`}>
-                            {responsibility.status}
-                          </span>
-                        </div>
-                      </div>
-                      <ArrowTopRightOnSquareIcon className="h-5 w-5 text-slate-400 group-hover:text-blue-300 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-                    </div>
-                    
-                    <p className="text-slate-300 leading-relaxed">
-                      {responsibility.description}
-                    </p>
-                  </div>
+    <section id="responsibilities" className="section-padding duties-section" aria-labelledby="responsibilities-heading">
+      <div className="container-max">
+        <div className="section-heading heading-split"><div><p className="eyebrow">08 / Responsabilités</p><h2 id="responsibilities-heading">Responsabilités,<br /><em>direction et gouvernance.</em></h2></div><p>Mes fonctions de direction et de gouvernance dans l'enseignement supérieur et la recherche scientifique.</p></div>
+        {responsibilitiesData.length === 0 ? <div className="empty-state"><h3>Aucune responsabilité à afficher</h3><p>Le contenu de cette section sera disponible prochainement.</p></div> : <ol className="duties-list">
+          {responsibilitiesData.map((responsibility, index) => (
+            <li key={responsibility.id ?? index} className="duties-entry">
+              <div className="duties-when">
+                <p className="duties-period"><span className="sr-only">Période : </span>{responsibility.period}</p>
+                {responsibility.status && <span className={statusClass(responsibility.status)}>{responsibility.status}</span>}
+              </div>
+              <div>
+                {responsibility.organization && <p className="duties-org">{responsibility.organization}</p>}
+                <h3>{responsibility.title}</h3>
+                <p className="duties-desc">{responsibility.description}</p>
+                <div className="cpr-item-foot">
+                  <button type="button" className="cpr-more" aria-haspopup="dialog" onClick={() => setSelectedResponsibility(responsibility)}>Voir le détail<span className="sr-only"> de la responsabilité {responsibility.title}</span><ArrowRightIcon aria-hidden="true" /></button>
                 </div>
               </div>
-            )
-          })}
-        </div>
-
-        {/* Statistics supprimées */}
-        {/* Responsibility Detail Popup */}
-        {selectedResponsibility && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-              {/* Popup Header */}
-              <div className={`flex items-center justify-between p-6 bg-gradient-to-r ${selectedResponsibility.color} text-white`}>
-                <div className="flex items-center">
-                  <selectedResponsibility.icon className="h-8 w-8 mr-4" />
-                  <div>
-                    <h2 className="text-2xl font-bold">{selectedResponsibility.title}</h2>
-                    <p className="text-blue-100">{selectedResponsibility.organization} • {selectedResponsibility.period}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedResponsibility(null)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <XMarkIcon className="h-6 w-6" />
-                </button>
-              </div>
-
-              {/* Popup Content */}
-              <div className="overflow-y-auto max-h-[calc(90vh-120px)] p-6">
-                <div className="space-y-6">
-                  {/* Description */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-3">Description</h3>
-                    <p className="text-slate-700 leading-relaxed">{selectedResponsibility.description}</p>
-                  </div>
-
-                  {/* Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div>
-                        <span className="text-sm font-medium text-slate-500">Type de responsabilité</span>
-                        <p className="text-slate-900 font-medium">{selectedResponsibility.details.type}</p>
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium text-slate-500">Période</span>
-                        <p className="text-slate-900 font-medium">{selectedResponsibility.period}</p>
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium text-slate-500">Statut</span>
-                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                          selectedResponsibility.status === 'Actuel' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {selectedResponsibility.status}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {selectedResponsibility.details.périmètre && (
-                        <div>
-                          <span className="text-sm font-medium text-slate-500">Périmètre</span>
-                          <p className="text-slate-900 font-medium">{selectedResponsibility.details.périmètre}</p>
-                        </div>
-                      )}
-                      {selectedResponsibility.details.utilisateurs && (
-                        <div>
-                          <span className="text-sm font-medium text-slate-500">Utilisateurs</span>
-                          <p className="text-slate-900 font-medium">{selectedResponsibility.details.utilisateurs}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Missions */}
-                  {selectedResponsibility.details.missions && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900 mb-3">Missions principales</h3>
-                      <ul className="space-y-2">
-                        {selectedResponsibility.details.missions.map((mission, index) => (
-                          <li key={index} className="flex items-start">
-                            <div className={`w-2 h-2 bg-gradient-to-r ${selectedResponsibility.color} rounded-full mt-2 mr-3 flex-shrink-0`}></div>
-                            <span className="text-slate-700">{mission}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Réalisations */}
-                  {selectedResponsibility.details.réalisations && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900 mb-3">Principales réalisations</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {selectedResponsibility.details.réalisations.map((realisation, index) => (
-                          <div key={index} className="p-4 bg-slate-50 rounded-lg">
-                            <p className="text-sm text-slate-700">{realisation}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Domaines/Thématiques */}
-                  {(selectedResponsibility.details.domaines || selectedResponsibility.details.thématiques) && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                        {selectedResponsibility.details.domaines ? 'Domaines de recherche' : 'Thématiques de recherche'}
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {(selectedResponsibility.details.domaines || selectedResponsibility.details.thématiques).map((item, index) => (
-                          <span key={index} className={`px-3 py-1 bg-gradient-to-r ${selectedResponsibility.color} text-white rounded-full text-sm font-medium`}>
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+            </li>
+          ))}
+        </ol>}
+        {selectedResponsibility && renderDialog(selectedResponsibility)}
       </div>
     </section>
   )

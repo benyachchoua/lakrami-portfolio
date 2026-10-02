@@ -29,6 +29,9 @@ export function createApp({ env = process.env, dbPath = env.DB_PATH || path.join
   const originAllowed = (req, origin) => origins.has(origin) || origin === `${req.protocol}://${req.get('host')}`
 
   app.disable('x-powered-by')
+  // Behind Render's proxy, req.ip/req.protocol must come from X-Forwarded-* or rate limits share one bucket and same-origin checks see http.
+  const trustProxy = env.TRUST_PROXY ?? (env.RENDER ? '1' : '')
+  if (trustProxy) app.set('trust proxy', /^\d+$/.test(trustProxy) ? Number(trustProxy) : trustProxy)
   app.use((req, res, next) => {
     res.set({
       'X-Content-Type-Options': 'nosniff',
@@ -39,7 +42,7 @@ export function createApp({ env = process.env, dbPath = env.DB_PATH || path.join
     if (production) {
       res.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
       // Rich-text content uses inline presentation styles; scripts remain self-only.
-      res.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self'; connect-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'")
+      res.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: http:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'")
     }
     next()
   })

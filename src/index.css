@@ -74,7 +74,7 @@
 .profile-panel-note { display: flex; gap: 14px; align-items: flex-start; margin-top: 21px; color: var(--muted); font-size: 10px; line-height: 1.8; }
 .profile-note-rule { width: 30px; height: 1px; background: var(--teal); flex-shrink: 0; margin-top: 9px; }
 .hero-bottom { display: flex; justify-content: space-between; gap: 20px; padding: 19px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
-.hero-bottom a { display: flex; gap: 14px; align-items: center; min-height: 24px; }
+.hero-bottom a { display: flex; gap: 14px; align-items: center; min-height: 44px; }
 .hero-bottom svg { width: 13px; height: 13px; }
 .academic-section { background: #fff; }
 .section-heading { margin-bottom: 42px; }

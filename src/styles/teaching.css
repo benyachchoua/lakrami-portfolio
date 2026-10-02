@@ -1,0 +1,46 @@
+/* Section Enseignement — complète les règles .institution-list / .course-detail déjà définies dans index.css */
+.teaching-section .teaching-intro { max-width: 365px; padding-bottom: 22px; color: var(--muted); font-size: 14px; line-height: 1.85; }
+.teaching-section .teaching-intro a { color: var(--teal); text-decoration: underline; text-underline-offset: 3px; }
+.teaching-section .teaching-intro p + p { margin-top: 10px; }
+
+.teaching-section .institution-list { list-style: none; margin: 0; padding: 0; gap: 46px; }
+.teaching-section .institution-heading { margin: 0 0 18px; line-height: 1.5; }
+.teaching-section .institution-heading .tag { font-size: 11px; padding: 4px 10px; }
+
+.teaching-section .course-list { list-style: none; margin: 0; padding: 0; }
+.teaching-section .course-detail summary { min-height: 44px; font-size: 14px; line-height: 1.6; }
+.teaching-section .course-detail summary:hover { color: var(--teal); }
+.teaching-section .course-detail[open] > summary { color: var(--teal); }
+.teaching-section .course-detail summary > span,
+.teaching-section .course-row > span { margin-left: 14px; font-size: 12px; color: var(--muted); font-weight: 400; font-family: 'Inter', sans-serif; }
+.teaching-section .course-row { padding: 19px 30px 19px 18px; min-height: 44px; border-bottom: 1px solid var(--line); font-size: 14px; line-height: 1.6; color: var(--ink); }
+.teaching-section .disclosure-body { padding: 0 0 24px 18px; font-size: 13px; line-height: 1.8; }
+.teaching-section .disclosure-body h4 { margin: 16px 0 6px; }
+.teaching-section .disclosure-body h4:first-child { margin-top: 0; }
+.teaching-section .disclosure-body ul { margin: 0; padding: 0; }
+
+.teaching-section .course-more { display: flex; justify-content: flex-start; padding-top: 14px; }
+.teaching-section .course-more .text-button { min-height: 44px; padding: 0 2px; font-size: 13px; }
+
+.teaching-section .teaching-empty { margin: 0; }
+
+.teaching-pedagogy { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 80px; row-gap: 40px; margin-top: 72px; padding-top: 40px; border-top: 1px solid var(--ink); }
+.teaching-pedagogy h3 { font-size: 18px; font-weight: 400; margin: 0 0 14px; }
+.teaching-pedagogy > div > p { max-width: 460px; color: var(--muted); font-size: 13px; line-height: 1.85; margin: 0 0 20px; }
+.teaching-pedagogy ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.teaching-pedagogy li { padding: 12px 0 12px 18px; border-bottom: 1px solid var(--line); font-size: 13px; color: #42555e; position: relative; line-height: 1.6; }
+.teaching-pedagogy li::before { content: ''; position: absolute; left: 0; top: 1.15em; width: 8px; height: 1px; background: var(--teal); }
+
+@media (max-width: 767px) {
+  .teaching-section .teaching-intro { max-width: none; padding-bottom: 0; font-size: 13px; }
+  .teaching-section .institution-list { gap: 36px; }
+  .teaching-section .institution-heading { font-size: 17px; gap: 8px 12px; }
+  .teaching-section .course-detail summary { padding-right: 8px; }
+  .teaching-section .course-detail summary > span,
+  .teaching-section .course-row > span { display: block; margin: 5px 0 0 18px; }
+  .teaching-section .course-row { padding-right: 8px; }
+  .teaching-section .course-row > span { margin-left: 0; }
+  .teaching-section .disclosure-body { padding-left: 0; }
+  .teaching-section .course-more .text-button { width: 100%; justify-content: center; border: 1px solid var(--line); border-radius: 4px; text-decoration: none; }
+  .teaching-pedagogy { grid-template-columns: 1fr; row-gap: 36px; margin-top: 48px; padding-top: 30px; }
+}
