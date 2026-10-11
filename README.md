@@ -65,3 +65,6 @@ Les variables serveur doivent être fournies par le shell ou l'hébergeur. Le se
 
 Les protections comprennent les sessions HttpOnly, le contrôle du propriétaire pour les modifications, la limitation des tentatives de connexion, la validation des entrées et des photos, ainsi que la purification du HTML affiché. Elles ne remplacent pas la gestion des accès, les sauvegardes et les mises à jour régulières de l'hébergement.
 # lakrami-portfolio
+
+Pour héberger le frontend sur Vercel avec le serveur Express et les données
+sur un disque persistant, suivre [le guide de déploiement](DEPLOYMENT.md).

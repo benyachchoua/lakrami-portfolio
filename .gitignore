@@ -16,3 +16,4 @@ dist/
 .remember/
 Users/
 *.db
+.vercel/
